@@ -2,27 +2,18 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Home, Search, TicketX } from 'lucide-react'
-import { Link, useNavigate } from "react-router-dom"
+import { ArrowLeft, TicketX } from 'lucide-react'
+import { Link } from "react-router-dom"
 
 interface NotFoundProps {
   title?: string
   description?: string
-  showBackButton?: boolean
-  showHomeButton?: boolean
-  showSearchButton?: boolean
-  customAction?: React.ReactNode
 }
 
 export const NotFound = ({
   title = "Página não encontrada",
   description = "Desculpe, não conseguimos encontrar a página que você está procurando.",
-  showBackButton = true,
-  showHomeButton = true,
-  showSearchButton = false,
-  customAction
 }: NotFoundProps) => {
-  const router = useNavigate()
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">

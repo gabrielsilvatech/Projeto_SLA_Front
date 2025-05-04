@@ -6,7 +6,10 @@ import { NotFound } from "@/pages/NotFound";
 import Dashboard from "@/pages/Dashboard";
 import Tickets from "@/pages/Tickets";
 import { NewTicket } from "./pages/Tickets/new";
+<<<<<<< HEAD
 import Ticket from "./pages/Tickets/ticket";
+=======
+>>>>>>> b730471c3be1af98a8972ba3e7fb0a52b3fe87a9
 
 function App() {
   return (
@@ -17,7 +20,10 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/tickets" element={<Tickets />} />
         <Route path="/tickets/new" element={<NewTicket />} />
+<<<<<<< HEAD
         <Route path="/tickets/:title" element={<Ticket />} />
+=======
+>>>>>>> b730471c3be1af98a8972ba3e7fb0a52b3fe87a9
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
