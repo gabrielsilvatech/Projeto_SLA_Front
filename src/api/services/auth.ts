@@ -47,6 +47,7 @@ export async function Register(data: User) {
 
       if (status === 422 && Array.isArray(data.detail)) {
         const missingFields = data.detail.map((item: any) => item.loc.at(-1)).join(', ');
+        toast.error(missingFields);
       }
     } else if (error.request) {
       console.error('Network error:', error.request);
