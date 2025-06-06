@@ -1,12 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ListTickets, type TicketResponse } from "@/api/services/tickets"
+import { CloseTicket, ListTickets, type TicketResponse } from "@/api/services/tickets"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Link } from "react-router-dom"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+import { CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RotateCcw } from "lucide-react"
 
 export function RecentTickets() {
   const [tickets, setTickets] = useState<TicketResponse[]>([])
@@ -17,23 +16,23 @@ export function RecentTickets() {
   const limit = 5
   const skip = (page - 1) * limit
 
-  useEffect(() => {
-    async function fetchTickets() {
-      setIsLoading(true)
-      try {
-        const response = await ListTickets({ skip, limit })
-        if (response) {
-          setTickets(response)
+  async function fetchTickets() {
+    setIsLoading(true)
+    try {
+      const response = await ListTickets({ skip, limit })
+      if (response) {
+        setTickets(response)
 
-          const total = response.total || 20 
-          setTotalItems(total)
-          setTotalPages(Math.ceil(total / limit))
-        }
-      } finally {
-        setIsLoading(false)
+        const total = response.total || 20
+        setTotalItems(total)
+        setTotalPages(Math.ceil(total / limit))
       }
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchTickets()
   }, [page])
 
@@ -41,13 +40,13 @@ export function RecentTickets() {
 
   const getStatusColor = (status: string): BadgeVariant => {
     switch (status) {
-      case "open":
+      case "OPEN":
         return "default"
-      case "in-progress":
+      case "IN-PROGRESS":
         return "secondary"
-      case "resolved":
+      case "RESOLVED":
         return "outline"
-      case "closed":
+      case "CLOSED":
         return "destructive"
       default:
         return "default"
@@ -56,18 +55,48 @@ export function RecentTickets() {
 
   const getPriorityColor = (priority: string): BadgeVariant => {
     switch (priority) {
-      case "low":
+      case "LOW":
         return "secondary"
-      case "medium":
+      case "MEDIUM":
         return "default"
-      case "high":
+      case "HIGH":
         return "outline"
-      case "critical":
+      case "CRITICAL":
         return "destructive"
       default:
         return "default"
     }
   }
+
+  const handleResolveTicket = async (ticketId: string) => {
+    try {
+      await CloseTicket({ id_ticket: ticketId, status_ticket: 2 })
+      fetchTickets()
+    } catch (error) {
+      console.error("Failed to resolve ticket:", error)
+    }
+  }
+
+
+  const handleReopenTicket = async (ticketId: string) => {
+    try {
+      await CloseTicket({ id_ticket: ticketId, status_ticket: 1 })
+      fetchTickets()
+    } catch (error) {
+      console.error("Failed to reopen ticket:", error)
+    }
+  }
+
+
+  const canResolveTicket = (status: string) => {
+    return status === "OPEN" || status === "IN-PROGRESS"
+  }
+
+  const canReopenTicket = (status: string) => {
+    return status === "RESOLVED" || status === "CLOSED"
+  }
+
+
 
   const goToPage = (pageNumber: number) => {
     setPage(Math.max(1, Math.min(pageNumber, totalPages)))
@@ -161,11 +190,28 @@ export function RecentTickets() {
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{ticket.creator}</TableCell>
                 <TableCell className="text-right">
-                  <Link to={`/tickets/${ticket.title}`}>
-                    <Button variant="ghost" size="sm">
-                      Ver
+                  {canResolveTicket(ticket.status_ticket) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                      onClick={() => handleResolveTicket(ticket.id)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      <span className="hidden sm:inline">Resolver</span>
                     </Button>
-                  </Link>
+                  )}
+                  {canReopenTicket(ticket.status_ticket) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleReopenTicket(ticket.id)}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      <span className="hidden sm:inline">Reabrir</span>
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))
